@@ -1,0 +1,54 @@
+ID: ZNewtestapp
+_schema-version: "2.1"
+parameters:
+  deploy_mode: html5-repo
+version: 0.0.1
+modules:
+  - name: znewtestapp-approuter
+    type: approuter.nodejs
+    path: znewtestapp-approuter
+    parameters:
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: ZNewtestapp_html5_repo_runtime
+  - name: ZNewtestapp_ui_deployer
+    type: com.sap.html5.application-content
+    path: ZNewtestapp_ui_deployer
+    requires:
+      - name: ZNewtestapp_html5_repo_host
+  - name: ZNewtestapp-db
+    type: hdb
+    path: db
+    parameters:
+      memory: 256M
+      disk-quota: 512M
+    requires:
+      - name: ZNewtestapp-db-hdi-container
+  - name: ZNewtestapp-srv
+    type: nodejs
+    path: srv
+    parameters:
+      memory: 512M
+      disk-quota: 512M
+    provides:
+      - name: srv_api
+        properties:
+          url: ${default-url}
+    requires:
+      - name: ZNewtestapp-db-hdi-container
+resources:
+  - name: ZNewtestapp_html5_repo_runtime
+    parameters:
+      service-plan: app-runtime
+      service: html5-apps-repo
+    type: org.cloudfoundry.managed-service
+  - name: ZNewtestapp_html5_repo_host
+    parameters:
+      service-plan: app-host
+      service: html5-apps-repo
+    type: org.cloudfoundry.managed-service
+  - name: ZNewtestapp-db-hdi-container
+    type: com.sap.xs.hdi-container
+    properties:
+      hdi-container-name: ${service-name}
